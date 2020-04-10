@@ -1,5 +1,5 @@
 // @flow
-import errors from 'restify-errors'
+import { InternalServerError } from 'restify-errors'
 import config from '../config'
 import { getInstanceHealthStatus } from '../healthcheck'
 
@@ -16,7 +16,7 @@ function shouldBlockRequest(req: any): boolean {
 
   if (req.url === '/api/v2/healthcheck') {
     return !instanceHealthStatus.healthy
-  } else if (['/api/v2/bestBlock', '/api/v2/healthStatus', '/api/txs/last'].includes(req.url)) {
+  } else if (['/api/v2/bestBlock', '/api/v2/healthStatus'].includes(req.url)) {
     // these requests are good to inspect the instance when it becomes unhealthy
     return false
   }
@@ -34,7 +34,7 @@ function shouldBlockRequest(req: any): boolean {
 
 function responseGuard(req: any, res: any, next: any) {
   if (shouldBlockRequest(req)) {
-    return next(new errors.InternalError(
+    return next(new InternalServerError(
       'The instance is unhealthy',
     ))
   }
